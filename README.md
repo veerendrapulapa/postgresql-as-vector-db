@@ -1,4 +1,4 @@
-# PostgreSQL as a Vector DB — Day 1 & Day 2
+# PostgreSQL as a Vector DB — Day 1, Day 2 & Day 3
 
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17.x-336791?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![pgvector](https://img.shields.io/badge/pgvector-0.x-blue)](https://github.com/pgvector/pgvector)
@@ -17,6 +17,7 @@ Each day adds features, experiments, and benchmarks.
 - `ingest_pdf.py` — PDF → chunks → embeddings → Postgres (replace‑on‑reingest)
 - `app.py` — FastAPI endpoint `/ask?q=...` returns `{ "answer", "citations" }`
 - `bench_day2.py` — Day‑2 benchmark (Exact vs **IVFFlat/HNSW**) with **recall@k** and latency
+- `bench_day3.py` — Day‑3 benchmark (recall@k vs latency curves across probes/ef_search)
 - `.env.example` — environment template (`PG_DSN`, `OPENAI_API_KEY`, model names)
 - `requirements.txt` — Python deps
 - `Makefile` — convenience targets (`init`, `schema`, `seed`, `ask`, `api`)
@@ -149,6 +150,36 @@ python bench_day2.py
 
 ---
 
+## 📅 Day 3 — Formal Benchmarks: Recall@k vs Latency
+
+- Extended Day‑2 work with a new script `bench_day3.py`
+- Benchmarks **IVFFlat (probes)** and **HNSW (ef_search)** against exact search
+- Measures **latency (ms)** and **recall@k** for different parameter values
+- Run with:
+  ```bash
+  python bench_day3.py
+  ```
+
+**Example results**
+```json
+[
+  {"method": "ivf", "probes": 4, "ms": 5.3, "recall": 0.82},
+  {"method": "ivf", "probes": 16, "ms": 9.1, "recall": 0.95},
+  {"method": "ivf", "probes": 32, "ms": 15.2, "recall": 0.99},
+  {"method": "hnsw", "ef": 32, "ms": 6.4, "recall": 0.88},
+  {"method": "hnsw", "ef": 64, "ms": 10.8, "recall": 0.97},
+  {"method": "hnsw", "ef": 128, "ms": 18.1, "recall": 0.995}
+]
+```
+
+**Interpretation**
+- Exact = 100% recall but slowest at scale
+- IVFFlat = recall improves with `probes`, latency increases
+- HNSW = recall improves with `ef_search`, usually higher recall at similar latency
+- You can now plot **recall vs latency curves** to decide optimal parameters for your workload
+
+---
+
 ## 🧪 Ingest a PDF (optional)
 
 ```bash
@@ -177,7 +208,6 @@ python ingest_pdf.py "path/to/your.pdf" mydoc
 
 ## 🗺️ Roadmap (next)
 
-- **Day 3:** Formal benchmarks (recall@k vs latency) across dataset sizes; plots  
 - **Day 4:** RAG architecture deep‑dive (chunking strategies, hybrid search)  
 - **Day 5:** Grounding & hallucination control; better citations  
 
