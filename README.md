@@ -1,4 +1,4 @@
-# PostgreSQL as a Vector DB — Day 1, Day 2 & Day 3
+# PostgreSQL as a Vector DB
 
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17.x-336791?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![pgvector](https://img.shields.io/badge/pgvector-0.x-blue)](https://github.com/pgvector/pgvector)
